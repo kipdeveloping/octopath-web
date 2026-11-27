@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Formaciones{% endblock %}
+
+{% block content %}
+<div class="header">
+    <h1>Mis Formaciones</h1>
+    <a href="{{ url_for('crear') }}" class="btn btn-primary">+ Crear formacion</a>
+</div>
+
+{% if formaciones %}
+<div class="formaciones-list">
+    {% for formacion in formaciones %}
+    <div class="formacion-card">
+        <div class="formacion-info">
+            <h2 class="formacion-nombre">{{ formacion.nombre or "Formacion #" ~ formacion.num }}</h2>
+            <p class="formacion-fecha">{{ formacion.fecha_creacion }}</p>
+            <div class="formacion-botones">
+                <a href="{{ url_for('ver', id=formacion.id) }}" class="btn btn-small">Ver</a>
+                <a href="{{ url_for('editar', id=formacion.id) }}" class="btn btn-small btn-secondary">Editar</a>
+                <form method="POST" action="{{ url_for('eliminar', id=formacion.id) }}" class="inline-form" onsubmit="return confirm('Seguro que quieres eliminar esta formacion?')">
+                    <button type="submit" class="btn btn-small btn-danger">Eliminar</button>
+                </form>
+            </div>
+        </div>
+        <div class="formacion-equipo">
+            {% set imagenes = formacion.imagenes.split(',') if formacion.imagenes else [] %}
+            {% for img in imagenes %}
+            <div class="personaje-mini">
+                {% if img %}
+                <img src="{{ url_for('static', filename='imagenes/' ~ img) }}" alt="">
+                {% else %}
+                <svg viewBox="0 0 100 100" class="placeholder-icon">
+                    <rect fill="#3a3a4a" rx="8" width="100" height="100"/>
+                    <text fill="white" font-size="24" text-anchor="middle" x="50" y="58">?</text>
+                </svg>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">
+    <p>No hay formaciones creadas aun.</p>
+    <a href="{{ url_for('crear') }}" class="btn btn-primary">Crear tu primera formacion</a>
+</div>
+{% endif %}
+{% endblock %}

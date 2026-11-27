@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %}Editar Formacion{% endblock %}
+
+{% block content %}
+<h1>Editar Formacion</h1>
+
+{% if error %}
+<div class="error-message">{{ error }}</div>
+{% endif %}
+
+<form method="POST" id="form-editar">
+    <div class="form-group">
+        <label for="nombre">Nombre de la formacion (opcional):</label>
+        <input type="text" id="nombre" name="nombre" placeholder="Mi equipo epico" value="{{ formacion.nombre or '' }}">
+    </div>
+
+    <p class="seleccion-info">Selecciona exactamente 4 personajes: <span id="contador">0</span>/4</p>
+
+    <div class="personajes-grid">
+        {% for personaje in personajes %}
+        <div class="personaje-card {% if personaje.id|string in actuales_ids %}seleccionado{% endif %}" data-id="{{ personaje.id }}" onclick="toggleSeleccion(this, {{ personaje.id }})">
+            <input type="checkbox" name="personajes" value="{{ personaje.id }}" class="personaje-checkbox" {% if personaje.id|string in actuales_ids %}checked{% endif %}>
+            <div class="personaje-seleccion-overlay">SELECCIONADO</div>
+            <div class="personaje-imagen">
+                {% set img_path = 'imagenes/' ~ personaje.imagen %}
+                <img src="{{ url_for('static', filename=img_path) }}" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" alt="{{ personaje.nombre }}">
+                <svg viewBox="0 0 100 100" class="placeholder-icon" style="display:none;">
+                    <rect fill="#3a3a4a" rx="8" width="100" height="100"/>
+                    <text fill="white" font-size="24" text-anchor="middle" x="50" y="58">{{ personaje.nombre[:2] }}</text>
+                </svg>
+            </div>
+            <h3 class="personaje-nombre">{{ personaje.nombre }}</h3>
+            <p class="personaje-clase">{{ personaje.clase }}</p>
+            <div class="barra-container">
+                <div class="barra-label">HP {{ personaje.hp }}</div>
+                <div class="barra barra-hp">
+                    <div class="barra-fill barra-hp-fill" data-width="{{ (personaje.hp / 400 * 100)|int }}"></div>
+                </div>
+            </div>
+            <div class="barra-container">
+                <div class="barra-label">PH {{ personaje.ph }}</div>
+                <div class="barra barra-ph">
+                    <div class="barra-fill barra-ph-fill" data-width="{{ (personaje.ph / 400 * 100)|int }}"></div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <button type="submit" class="btn btn-primary btn-submit" id="btn-guardar" disabled>Actualizar Formacion</button>
+</form>
+
+<script>
+let seleccionados = {{ actuales_ids|map('int')|list|tojson }};
+const MAX_SELECCION = 4;
+
+function toggleSeleccion(card, id) {
+    const index = seleccionados.indexOf(id);
+    if (index > -1) {
+        seleccionados.splice(index, 1);
+        card.classList.remove('seleccionado');
+        card.querySelector('.personaje-checkbox').checked = false;
+    } else {
+        if (seleccionados.length >= MAX_SELECCION) return;
+        seleccionados.push(id);
+        card.classList.add('seleccionado');
+        card.querySelector('.personaje-checkbox').checked = true;
+    }
+    actualizarUI();
+}
+
+function actualizarUI() {
+    document.getElementById('contador').textContent = seleccionados.length;
+    const btn = document.getElementById('btn-guardar');
+    btn.disabled = seleccionados.length !== MAX_SELECCION;
+}
+
+actualizarUI();
+</script>
+{% endblock %}

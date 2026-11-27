@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}{{ formacion.nombre or "Formacion #" ~ num }}{% endblock %}
+
+{% block content %}
+<h1>{{ formacion.nombre or "Formacion #" ~ num }}</h1>
+<p class="formacion-fecha">Creada: {{ formacion.fecha_creacion }}</p>
+
+<div class="personajes-grid-2x2">
+    {% for personaje in personajes %}
+    <div class="personaje-card-detalle">
+        <div class="personaje-imagen-grande">
+            {% set img_path = 'imagenes/' ~ personaje.imagen %}
+            <img src="{{ url_for('static', filename=img_path) }}" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" alt="{{ personaje.nombre }}">
+            <svg viewBox="0 0 100 100" class="placeholder-icon" style="display:none;">
+                <rect fill="#3a3a4a" rx="8" width="100" height="100"/>
+                <text fill="white" font-size="24" text-anchor="middle" x="50" y="58">{{ personaje.nombre[:2] }}</text>
+            </svg>
+        </div>
+        <h3 class="personaje-nombre">{{ personaje.nombre }}</h3>
+        <p class="personaje-clase">{{ personaje.clase }}</p>
+        <div class="barra-container">
+            <div class="barra-label">HP {{ personaje.hp }}</div>
+            <div class="barra barra-hp">
+                <div class="barra-fill barra-hp-fill" data-width="{{ (personaje.hp / 400 * 100)|int }}"></div>
+            </div>
+        </div>
+        <div class="barra-container">
+            <div class="barra-label">PH {{ personaje.ph }}</div>
+            <div class="barra barra-ph">
+                <div class="barra-fill barra-ph-fill" data-width="{{ (personaje.ph / 400 * 100)|int }}"></div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<div class="formacion-botones">
+    <a href="{{ url_for('editar', id=formacion.id) }}" class="btn btn-primary">Editar</a>
+    <form method="POST" action="{{ url_for('eliminar', id=formacion.id) }}" class="inline-form" onsubmit="return confirm('Seguro que quieres eliminar esta formacion?')">
+        <button type="submit" class="btn btn-danger">Eliminar</button>
+    </form>
+    <a href="{{ url_for('index') }}" class="btn btn-secondary">Volver</a>
+</div>
+{% endblock %}
